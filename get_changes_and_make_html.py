@@ -37,26 +37,26 @@ for CDDA_version in range(range_from, range_to+1):
 		url = 'https://github.com/CleverRaven/Cataclysm-DDA/commit/{}'.format(commit)
 
 		driver.get(url)
-		content = WebDriverWait(driver, 10).until(
+		pull_number = WebDriverWait(driver, 10).until(
 			EC.presence_of_element_located((By.CLASS_NAME, 'pull-request'))
 		).text[2:-1]
-		pulls.add((CDDA_version, content))
+		pulls.add(pull_number)
 
-	new_pulls = []
-	for pull in pulls:
-		url = pull_url.format(pull[1])
+	pulls_list = []
+	for pull_number in pulls:
+		url = pull_url.format(pull_number)
 		driver.get(url)
 		pull_name = driver.find_element_by_class_name('gh-header-title').text
-		new_pulls.append((pull[0], pull[1], pull_name))
+		pulls_list.append((pull_number, pull_name))
 
-	new_pulls.sort()
+	pulls_list.sort()
 
 	# make html file(s)
 	file_str = '<h2>{}</h2>'.format(CDDA_version)
-	for pull in new_pulls:
+	for pull_number, pull_name in pulls_list:
 		file_str += '''<a href='{url}'>{name}<a><br>'''.format(
-			url=pull_url.format(pull[1]),
-			name=pull[2],
+			url=pull_url.format(pull_number),
+			name=pull_name,
 		)
 
 	file_str += '''<h3><a href='file:///C:/Users/Tonda/Documents/GitHub/CDDA-changelog/pages/{}.html'>&gt&gt{}</a></h3>'''.format(
