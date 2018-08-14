@@ -1,3 +1,5 @@
+import os
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -63,6 +65,9 @@ for CDDA_version in range(range_from, range_to+1):
 		CDDA_version+1,
 		CDDA_version+1,
 		)
+
+	if 'pages' not in os.listdir():
+		os.mkdir('pages')
 
 	with open('pages/{}.html'.format(CDDA_version), 'w') as file:
 		file.write(file_str)
