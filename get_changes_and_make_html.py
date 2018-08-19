@@ -12,6 +12,7 @@ pull_url = 'https://github.com/CleverRaven/Cataclysm-DDA/pull/{}'
 driver = webdriver.Chrome(r'C:\Program Files\chromedriver.exe')  # if that throws error, fix this line
 
 CDDA_version = int(os.listdir('pages')[-1][:-5]) + 1
+first_try = True
 while True:
 	url = "http://gorgon.narc.ro:8080/job/Cataclysm-Matrix/{}/".format(CDDA_version)
 
@@ -19,14 +20,16 @@ while True:
 	try:
 		webpage_read = urlopen(req).read().decode("utf-8")
 	except:  # except HTTPError throws NameError
-		print('No new CDDA versions to make hmtl out off!')
+		if first_try:
+			print('No new CDDA versions to make hmtl out off!')
 		break
 
-	if '<a href="/job/Cataclysm-Matrix/{}/changes"'.format(CDDA_version+1) in webpage_read:
+	if '<a href="/job/Cataclysm-Matrix/{}'.format(CDDA_version+1) in webpage_read:
 		further_version_exists = True
 	else:
 		further_version_exists = False
 
+	print('downloading for ver', CDDA_version)
 	# cut top off
 	webpage_read = webpage_read.split('Build #')[1]
 	# cut bottom off
@@ -76,7 +79,10 @@ while True:
 	with open('pages/{}.html'.format(CDDA_version), 'w') as file:
 		file.write(file_str)
 
-	if not further_version_exists:
+	if further_version_exists:
+		CDDA_version += 1
+		first_try = False
+	else:
 		break
 
 driver.quit()
