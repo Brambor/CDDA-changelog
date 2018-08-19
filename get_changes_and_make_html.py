@@ -7,21 +7,25 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from urllib.request import Request, urlopen
 
+
 pull_url = 'https://github.com/CleverRaven/Cataclysm-DDA/pull/{}'
 driver = webdriver.Chrome(r'C:\Program Files\chromedriver.exe')  # if that throws error, fix this line
 
-## INPUT ##
-# from version (including)
-range_from = 7697
-# to version (including)
-range_to = 7697
-###########
-
-for CDDA_version in range(range_from, range_to+1):
+CDDA_version = int(os.listdir('pages')[-1][:-5]) + 1
+while True:
 	url = "http://gorgon.narc.ro:8080/job/Cataclysm-Matrix/{}/".format(CDDA_version)
 
 	req = Request(url)
-	webpage_read = urlopen(req).read().decode("utf-8")
+	try:
+		webpage_read = urlopen(req).read().decode("utf-8")
+	except:  # except HTTPError throws NameError
+		print('No new CDDA versions to make hmtl out off!')
+		break
+
+	if '<a href="/job/Cataclysm-Matrix/{}/changes"'.format(CDDA_version+1) in webpage_read:
+		further_version_exists = True
+	else:
+		further_version_exists = False
 
 	# cut top off
 	webpage_read = webpage_read.split('Build #')[1]
@@ -71,4 +75,9 @@ for CDDA_version in range(range_from, range_to+1):
 
 	with open('pages/{}.html'.format(CDDA_version), 'w') as file:
 		file.write(file_str)
+
+	if not further_version_exists:
+		break
+
+driver.quit()
 print('DONE')
