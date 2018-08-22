@@ -46,9 +46,12 @@ while True:
 		url = 'https://github.com/CleverRaven/Cataclysm-DDA/commit/{}'.format(commit)
 
 		driver.get(url)
-		pull_number = WebDriverWait(driver, 10).until(
-			EC.presence_of_element_located((By.CLASS_NAME, 'pull-request'))
-		).text[2:-1]
+		try:
+			pull_number = WebDriverWait(driver, 10).until(
+				EC.presence_of_element_located((By.CLASS_NAME, 'pull-request'))
+			).text[2:-1]
+		except:
+			continue
 		pulls.add(pull_number)
 
 	pulls_list = []
