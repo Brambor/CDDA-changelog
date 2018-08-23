@@ -11,7 +11,17 @@ from urllib.request import Request, urlopen
 pull_url = 'https://github.com/CleverRaven/Cataclysm-DDA/pull/{}'
 driver = webdriver.Chrome(r'C:\Program Files\chromedriver.exe')  # if that throws error, fix this line
 
-CDDA_version = int(os.listdir('pages')[-1][:-5]) + 1
+if 'pages' not in os.listdir():
+	os.mkdir('pages')
+
+if os.listdir('pages'):  # if there is something
+	CDDA_version = int(os.listdir('pages')[-1][:-5]) + 1
+else:
+	req = Request('http://gorgon.narc.ro:8080/job/Cataclysm-Matrix/')
+	webpage_read = urlopen(req).read().decode("utf-8")
+	webpage_read = webpage_read.split('Last build (#')[1].split(')')[0]
+	CDDA_version = int(webpage_read)
+
 first_try = True
 while True:
 	url = "http://gorgon.narc.ro:8080/job/Cataclysm-Matrix/{}/".format(CDDA_version)
@@ -76,9 +86,6 @@ while True:
 		CDDA_version+1,
 		)
 
-	if 'pages' not in os.listdir():
-		os.mkdir('pages')
-
 	with open('pages/{}.html'.format(CDDA_version), 'w') as file:
 		file.write(file_str)
 
@@ -89,4 +96,3 @@ while True:
 		break
 
 driver.quit()
-print('DONE')
