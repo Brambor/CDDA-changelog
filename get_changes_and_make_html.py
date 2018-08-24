@@ -69,22 +69,24 @@ while True:
 		url = pull_url.format(pull_number)
 		driver.get(url)
 		pull_name = driver.find_element_by_class_name('gh-header-title').text
+		pull_name = pull_name.encode('ASCII', 'ignore').decode()  # cause ❤ broke it
 		pulls_list.append((pull_number, pull_name))
 
 	pulls_list.sort()
 
 	# make html file(s)
-	file_str = '<h2>{}</h2>'.format(CDDA_version)
+	file_str = '''<h2>{v_current} <a href='file:///C:/Users/Tonda/Documents/GitHub/CDDA-changelog/pages/{v_next}.html'>&gt&gt</a></h2>'''.format(
+		v_current=CDDA_version,
+		v_next=CDDA_version+1,
+		)
+
 	for pull_number, pull_name in pulls_list:
 		file_str += '''<a href='{url}'>{name}<a><br>'''.format(
 			url=pull_url.format(pull_number),
 			name=pull_name,
 		)
-
-	file_str += '''<h3><a href='file:///C:/Users/Tonda/Documents/GitHub/CDDA-changelog/pages/{}.html'>&gt&gt{}</a></h3>'''.format(
-		CDDA_version+1,
-		CDDA_version+1,
-		)
+	if file_str[-4:] == '<br>':
+		file_str = file_str[:-4]
 
 	with open('pages/{}.html'.format(CDDA_version), 'w') as file:
 		file.write(file_str)
