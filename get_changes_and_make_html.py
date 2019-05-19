@@ -10,11 +10,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from urllib.request import Request, urlopen
 
 
-pull_url = 'https://github.com/CleverRaven/Cataclysm-DDA/pull/{}'
-commit_url = 'https://github.com/CleverRaven/Cataclysm-DDA/commit/{}'
-driver = Chrome(r'C:\Program Files\chromedriver.exe')  # if that throws error, fix this line
-
-
 if 'changelog.html' in os.listdir():
 	with open('changelog.html', 'r') as changelog:
 		last_changes = changelog.readline()
@@ -42,9 +37,16 @@ started_at = datetime.now()
 print("now it is %s" % started_at)
 print("newest ver = %d" % CDDA_version_max)
 
-first_try = True
 CDDA_version = CDDA_version_first
 # keep fetching until we get to CDDA_version_max. TODO: before ending, check again (if we had very long fetching)
+if CDDA_version == CDDA_version_max + 1:
+	input('No new CDDA versions to make hmtl out off!')
+	exit()
+
+pull_url = 'https://github.com/CleverRaven/Cataclysm-DDA/pull/{}'
+commit_url = 'https://github.com/CleverRaven/Cataclysm-DDA/commit/{}'
+driver = Chrome(r'C:\Program Files\chromedriver.exe')  # if that throws error, fix this line
+
 while CDDA_version <= CDDA_version_max:
 	url = "http://gorgon.narc.ro:8080/job/Cataclysm-Matrix/{}/".format(CDDA_version)
 
@@ -56,11 +58,12 @@ while CDDA_version <= CDDA_version_max:
 			print("\t%d doesn't exist" % CDDA_version)
 			CDDA_version += 1
 			continue
-		if first_try:
-			print('No new CDDA versions to make hmtl out off!')
 		break
 
-	at_progress = (CDDA_version-CDDA_version_first)/(CDDA_version_max-CDDA_version_first)
+	if CDDA_version_max != CDDA_version_first:
+		at_progress = (CDDA_version-CDDA_version_first)/(CDDA_version_max-CDDA_version_first)
+	else:
+		at_progress = 1
 	since_start = datetime.now() - started_at
 	if CDDA_version != CDDA_version_first:
 		time_left = (1-at_progress) * at_progress**-1 * since_start
@@ -140,6 +143,5 @@ while CDDA_version <= CDDA_version_max:
 		changelog.write(file_str)
 
 	CDDA_version += 1
-	first_try = False
 
 driver.quit()
